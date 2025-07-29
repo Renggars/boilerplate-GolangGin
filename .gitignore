@@ -1,0 +1,16 @@
+# Environment config
+.env
+
+# Docker
+*.pid
+*.log
+# Dockerfile
+docker-compose.override.yml
+
+# VSCode/editor
+.vscode/
+.idea/
+.DS_Store
+
+# System files
+Thumbs.db
