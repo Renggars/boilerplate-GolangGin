@@ -10,6 +10,7 @@ import (
 
 type AuthService interface {
 	Register(req *dto.RegisterRequest) error
+	Login(req *dto.LoginRequest) (*dto.LoginResponse, string, error)
 }
 
 type authService struct {
@@ -46,4 +47,38 @@ func (s *authService) Register(req *dto.RegisterRequest) error {
 	}
 
 	return nil
+}
+
+func (s *authService) Login(req *dto.LoginRequest) (*dto.LoginResponse, string, error) {
+	var data dto.LoginResponse
+
+	user, err := s.authRepository.GetUserByEmail(req.Email)
+	if err != nil {
+		return nil, "", &errorhandler.NotFoundError{Message: "invalid email or password"}
+	}
+
+	if err := utils.ComparePassword(user.Password, req.Password); err != nil {
+		return nil, "", &errorhandler.NotFoundError{Message: "invalid email or password"}
+	}
+
+	accessToken, err := utils.GenerateAccessToken(user)
+	if err != nil {
+		return nil, "", &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	refressToken, err := utils.GenerateRefreshToken(user)
+	if err != nil {
+		return nil, "", &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	data = dto.LoginResponse{
+		ID:          user.Id,
+		Name:        user.Name,
+		Email:       user.Email,
+		Role:        user.Role,
+		AccessToken: accessToken,
+	}
+
+	return &data, refressToken, nil
+
 }
