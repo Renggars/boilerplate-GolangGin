@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"restApi-GoGin/config"
+	"restApi-GoGin/routes"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	config.LoadConfig()
-	config.LoadDatabase()
+	db := config.LoadDatabase()
+	config.RunMigration(db)
 
 	router := gin.Default()
 	api := router.Group("/api")
@@ -19,6 +21,8 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	routes.AuthRouter(api)
 
 	router.Run(fmt.Sprintf(":%v", config.ENV.PORT))
 }

@@ -9,7 +9,7 @@ import (
 
 var DB *gorm.DB
 
-func LoadDatabase() {
+func LoadDatabase() *gorm.DB {
 	connectionString := fmt.Sprintf("%v:%v@tcp(%v)/%v?%v", ENV.DB_USERNAME, ENV.DB_PASSWORD, ENV.DB_URL, ENV.DB_DATABASE, "charset=utf8mb4&parseTime=True&loc=Asia%2FJakarta")
 	fmt.Println(connectionString)
 
@@ -20,4 +20,5 @@ func LoadDatabase() {
 	}
 
 	DB = db
+	return db
 }

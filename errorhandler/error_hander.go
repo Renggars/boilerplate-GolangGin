@@ -1,4 +1,4 @@
-package utils
+package errorhandler
 
 import (
 	"restApi-GoGin/dto"
