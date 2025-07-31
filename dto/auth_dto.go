@@ -13,9 +13,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	Role        string `json:"role"`
-	AccessToken string `json:"token"`
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 }

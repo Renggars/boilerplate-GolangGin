@@ -47,11 +47,21 @@ func (ctrl *authController) Login(ctx *gin.Context) {
 		return
 	}
 
-	responseData, refreshToken, err := ctrl.services.Login(&login)
+	responseData, accessToken, refreshToken, err := ctrl.services.Login(&login)
 	if err != nil {
 		errorhandler.ErrorHandler(ctx, err)
 		return
 	}
+
+	ctx.SetCookie(
+		"accessToken",
+		accessToken,
+		1*24*60*60,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
 
 	ctx.SetCookie(
 		"refreshToken",
@@ -67,6 +77,35 @@ func (ctrl *authController) Login(ctx *gin.Context) {
 		StatusCode: http.StatusOK,
 		Message:    "success login user",
 		Data:       responseData,
+	})
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (ctrl *authController) Logout(ctx *gin.Context) {
+	ctx.SetCookie(
+		"accessToken",
+		"",
+		-1,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+
+	ctx.SetCookie(
+		"refreshToken",
+		"",
+		-1,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+
+	res := helpers.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "success logout user",
 	})
 
 	ctx.JSON(http.StatusOK, res)
