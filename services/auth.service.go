@@ -11,6 +11,7 @@ import (
 type AuthService interface {
 	Register(req *dto.RegisterRequest) error
 	Login(req *dto.LoginRequest) (*dto.LoginResponse, string, string, error)
+	RefreshToken(refreshToken string) (string, error)
 }
 
 type authService struct {
@@ -79,4 +80,23 @@ func (s *authService) Login(req *dto.LoginRequest) (*dto.LoginResponse, string, 
 	}
 
 	return &data, accessToken, refressToken, nil
+}
+
+func (s *authService) RefreshToken(refreshToken string) (string, error) {
+	claims, err := utils.VerifyRefreshToken(refreshToken)
+	if err != nil {
+		return "", &errorhandler.UnauthorizedError{Message: err.Error()}
+	}
+
+	user, err := s.authRepository.GetUserById(claims.UserId)
+	if err != nil {
+		return "", &errorhandler.UnauthorizedError{Message: err.Error()}
+	}
+
+	newAccessToken, err := utils.GenerateAccessToken(user)
+	if err != nil {
+		return "", &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return newAccessToken, nil
 }

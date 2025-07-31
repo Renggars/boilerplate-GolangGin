@@ -50,3 +50,20 @@ func GenerateRefreshToken(user *models.User) (string, error) {
 
 	return ss, err
 }
+
+func VerifyRefreshToken(tokenStr string) (*JWTRefreshClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &JWTRefreshClaims{}, func(t *jwt.Token) (interface{}, error) { return refreshSecret, nil })
+
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*JWTRefreshClaims)
+
+	if !ok {
+		return nil, err
+	}
+
+	return claims, nil
+
+}
