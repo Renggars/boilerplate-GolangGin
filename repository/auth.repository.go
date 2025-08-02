@@ -39,8 +39,13 @@ func (r *authRepository) Register(user *models.User) error {
 func (r *authRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	err := r.db.First(&user, "email = ?", email).Error
-
-	return &user, err
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (r *authRepository) GetUserById(id int) (*models.User, error) {

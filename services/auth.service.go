@@ -6,20 +6,26 @@ import (
 	"restApi-GoGin/models"
 	"restApi-GoGin/repository"
 	"restApi-GoGin/utils"
+	"time"
 )
 
 type AuthService interface {
 	Register(req *dto.RegisterRequest) error
 	Login(req *dto.LoginRequest) (*dto.LoginResponse, string, string, error)
 	RefreshToken(refreshToken string) (string, error)
+	ForgotPassword(req *dto.ForgotPasswordRequest) error
 }
 
 type authService struct {
 	authRepository repository.AuthRepository
+	userRepository repository.UserRepository
 }
 
-func NewAuthService(authRepository repository.AuthRepository) *authService {
-	return &authService{authRepository: authRepository}
+func NewAuthService(authRepository repository.AuthRepository, userRepository repository.UserRepository) *authService {
+	return &authService{
+		authRepository: authRepository,
+		userRepository: userRepository,
+	}
 }
 
 func (s *authService) Register(req *dto.RegisterRequest) error {
@@ -31,7 +37,7 @@ func (s *authService) Register(req *dto.RegisterRequest) error {
 		return &errorhandler.BadRequestError{Message: "password not match"}
 	}
 
-	passwordHash, err := utils.HashPassword(req.Password)
+	passwordHash, err := utils.HashBcrypt(req.Password)
 	if err != nil {
 		return &errorhandler.InternalServerError{Message: err.Error()}
 	}
@@ -58,7 +64,7 @@ func (s *authService) Login(req *dto.LoginRequest) (*dto.LoginResponse, string, 
 		return nil, "", "", &errorhandler.NotFoundError{Message: "invalid email or password"}
 	}
 
-	if err := utils.ComparePassword(user.Password, req.Password); err != nil {
+	if err := utils.CompareBcrypt(user.Password, req.Password); err != nil {
 		return nil, "", "", &errorhandler.NotFoundError{Message: "invalid email or password"}
 	}
 
@@ -99,4 +105,33 @@ func (s *authService) RefreshToken(refreshToken string) (string, error) {
 	}
 
 	return newAccessToken, nil
+}
+
+func (s *authService) ForgotPassword(req *dto.ForgotPasswordRequest) error {
+	user, err := s.authRepository.GetUserByEmail(req.Email)
+	if err != nil || user == nil {
+		return &errorhandler.NotFoundError{Message: "user not found"}
+	}
+
+	otp := utils.GenerateOTP()
+	hashedOTP, err := utils.HashBcrypt(otp)
+	if err != nil {
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	exp := time.Now().Add(time.Minute * 5)
+	user.OTPCode = &hashedOTP
+	user.OTPCodeExp = &exp
+
+	err = s.userRepository.UpdateUser(user)
+	if err != nil {
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	err = utils.SendEmail(user.Email, "OTP Reset Password", otp)
+	if err != nil {
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return nil
 }

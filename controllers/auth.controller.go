@@ -141,3 +141,23 @@ func (ctrl *authController) RefreshToken(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, res)
 }
+
+func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
+	var request dto.ForgotPasswordRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := ctrl.services.ForgotPassword(&request); err != nil {
+		errorhandler.ErrorHandler(ctx, err)
+		return
+	}
+
+	res := helpers.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "OTP sent to your email",
+	})
+
+	ctx.JSON(http.StatusOK, res)
+}

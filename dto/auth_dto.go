@@ -18,3 +18,7 @@ type LoginResponse struct {
 	Email string `json:"email"`
 	Role  string `json:"role"`
 }
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}

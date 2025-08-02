@@ -2,17 +2,23 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"restApi-GoGin/config"
 	"restApi-GoGin/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	config.LoadConfig()
 	db := config.LoadDatabase()
 	config.RunMigration(db)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	router := gin.Default()
 
