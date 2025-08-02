@@ -21,5 +21,5 @@ func NewUserRepository(db *gorm.DB) *userRepository {
 }
 
 func (r *userRepository) UpdateUser(user *models.User) error {
-	return r.db.Save(&user).Error
+	return r.db.Save(user).Error
 }

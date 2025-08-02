@@ -7,6 +7,8 @@ import (
 	"restApi-GoGin/repository"
 	"restApi-GoGin/utils"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type AuthService interface {
@@ -14,6 +16,7 @@ type AuthService interface {
 	Login(req *dto.LoginRequest) (*dto.LoginResponse, string, string, error)
 	RefreshToken(refreshToken string) (string, error)
 	ForgotPassword(req *dto.ForgotPasswordRequest) error
+	VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPResponse, error)
 }
 
 type authService struct {
@@ -119,7 +122,7 @@ func (s *authService) ForgotPassword(req *dto.ForgotPasswordRequest) error {
 		return &errorhandler.InternalServerError{Message: err.Error()}
 	}
 
-	exp := time.Now().Add(time.Minute * 5)
+	exp := time.Now().Add(time.Minute * 10)
 	user.OTPCode = &hashedOTP
 	user.OTPCodeExp = &exp
 
@@ -134,4 +137,46 @@ func (s *authService) ForgotPassword(req *dto.ForgotPasswordRequest) error {
 	}
 
 	return nil
+}
+
+func (s *authService) VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPResponse, error) {
+	user, err := s.authRepository.GetUserByEmail(req.Email)
+	if err != nil || user == nil {
+		return nil, &errorhandler.NotFoundError{Message: "user not found"}
+	}
+
+	if user.OTPCode == nil || user.OTPCodeExp == nil {
+		return nil, &errorhandler.BadRequestError{Message: "no OTP request found"}
+	}
+
+	if time.Now().After(*user.OTPCodeExp) {
+		return nil, &errorhandler.BadRequestError{Message: "OTP expired"}
+	}
+
+	if err := utils.CompareBcrypt(*user.OTPCode, req.OTP); err != nil {
+		return nil, &errorhandler.BadRequestError{Message: "invalid otp"}
+	}
+
+	rawResetToken := uuid.New().String()
+	hashedResetTokenBytes, err := utils.HashBcrypt(rawResetToken)
+	if err != nil {
+		return nil, &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	hashedResetToken := string(hashedResetTokenBytes)
+
+	user.ResetToken = &hashedResetToken
+	exp := time.Now().Add(time.Minute * 10)
+	user.ResetTokenExp = &exp
+
+	user.OTPCode = nil
+	user.OTPCodeExp = nil
+
+	if err := s.userRepository.UpdateUser(user); err != nil {
+		return nil, &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return &dto.VerifyOTPResponse{
+		ResetToken: rawResetToken,
+	}, nil
 }

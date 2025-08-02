@@ -20,4 +20,5 @@ func AuthRouter(api *gin.RouterGroup) {
 	api.POST("/logout", authController.Logout)
 	api.POST("/refresh-token", authController.RefreshToken)
 	api.POST("/forgot-password", authController.ForgotPassword)
+	api.POST("/verify-otp", authController.VerifyOTP)
 }
