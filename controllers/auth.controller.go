@@ -8,7 +8,10 @@ import (
 	"restApi-GoGin/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
+
+var validate = validator.New()
 
 type authController struct {
 	services services.AuthService
@@ -34,6 +37,11 @@ func NewAuthController(authService services.AuthService) *authController {
 func (ctrl *authController) Register(ctx *gin.Context) {
 	var register dto.RegisterRequest
 	if err := ctx.ShouldBindJSON(&register); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := validate.Struct(register); err != nil {
 		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
 		return
 	}
@@ -66,6 +74,11 @@ func (ctrl *authController) Register(ctx *gin.Context) {
 func (ctrl *authController) Login(ctx *gin.Context) {
 	var login dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&login); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := validate.Struct(login); err != nil {
 		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
 		return
 	}
@@ -202,6 +215,11 @@ func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 		return
 	}
 
+	if err := validate.Struct(forgotPassword); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
 	if err := ctrl.services.ForgotPassword(&forgotPassword); err != nil {
 		errorhandler.ErrorHandler(ctx, err)
 		return
@@ -230,6 +248,11 @@ func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 	var verifyOTP dto.VerifyOTPRequest
 	if err := ctx.ShouldBindJSON(&verifyOTP); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := validate.Struct(verifyOTP); err != nil {
 		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
 		return
 	}
@@ -264,6 +287,11 @@ func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 func (ctrl *authController) ResetPassword(ctx *gin.Context) {
 	var resetPassword dto.ResetPasswordRequest
 	if err := ctx.ShouldBindJSON(&resetPassword); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := validate.Struct(resetPassword); err != nil {
 		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
 		return
 	}
