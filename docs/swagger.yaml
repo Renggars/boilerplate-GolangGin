@@ -1,0 +1,377 @@
+basePath: /api
+definitions:
+  dto.ForgotPasswordRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+    required:
+    - email
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: John Doe
+        type: string
+      role:
+        example: user
+        type: string
+    type: object
+  dto.Paginate:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      password_confirm:
+        example: password123
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - password_confirm
+    type: object
+  dto.ResetPasswordRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: newpassword123
+        minLength: 6
+        type: string
+      password_confirm:
+        example: newpassword123
+        type: string
+      reset_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    required:
+    - email
+    - password
+    - password_confirm
+    - reset_token
+    type: object
+  dto.VerifyOTPRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      otp:
+        example: "123456"
+        type: string
+    required:
+    - email
+    - otp
+    type: object
+  dto.VerifyOTPResponse:
+    properties:
+      reset_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  errorhandler.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Bad request
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
+  helpers.ResponseWithData:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      message:
+        example: Operation completed successfully
+        type: string
+      paginate:
+        $ref: '#/definitions/dto.Paginate'
+      status:
+        example: success
+        type: string
+    type: object
+  helpers.ResponseWithoutData:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Operation completed successfully
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A boilerplate REST API using Go and Gin framework with authentication
+    system
+  title: Boilerplate Go Gin API
+  version: "1.0"
+paths:
+  /forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send OTP to user's email for password reset
+      parameters:
+      - description: Forgot Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helpers.ResponseWithoutData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Forgot password
+      tags:
+      - auth
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login user with email and password
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user by clearing cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helpers.ResponseWithoutData'
+      summary: Logout user
+      tags:
+      - auth
+  /refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Refresh access token using refresh token from cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helpers.ResponseWithoutData'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with name, email, and password
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/helpers.ResponseWithData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using reset token
+      parameters:
+      - description: Reset Password Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helpers.ResponseWithoutData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Reset password
+      tags:
+      - auth
+  /verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify OTP and get reset token
+      parameters:
+      - description: Verify OTP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/helpers.ResponseWithData'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.VerifyOTPResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.ErrorResponse'
+      summary: Verify OTP
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

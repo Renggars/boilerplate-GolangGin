@@ -2,20 +2,23 @@ package helpers
 
 import "restApi-GoGin/dto"
 
+// ResponseWithData represents a successful API response with data
 type ResponseWithData struct {
-	Code      int           `json:"code"`
-	Status    string        `json:"status"`
-	Message   string        `json:"message"`
+	Code      int           `json:"code" example:"200"`
+	Status    string        `json:"status" example:"success"`
+	Message   string        `json:"message" example:"Operation completed successfully"`
 	Paginaate *dto.Paginate `json:"paginate,omitempty"`
 	Data      any           `json:"data"`
 }
 
+// ResponseWithoutData represents a successful API response without data
 type ResponseWithoutData struct {
-	Code    int    `json:"code"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
+	Code    int    `json:"code" example:"200"`
+	Status  string `json:"status" example:"success"`
+	Message string `json:"message" example:"Operation completed successfully"`
 }
 
+// Response creates a standardized API response based on the provided parameters
 func Response(params dto.ResponseParams) any {
 	var response any
 	var status string
