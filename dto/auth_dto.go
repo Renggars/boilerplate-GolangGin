@@ -31,3 +31,10 @@ type VerifyOTPRequest struct {
 type VerifyOTPResponse struct {
 	ResetToken string `json:"reset_token"`
 }
+
+type ResetPasswordRequest struct {
+	Email           string `json:"email" validate:"required,email"`
+	ResetToken      string `json:"reset_token" validate:"required"`
+	Password        string `json:"password" validate:"required,min=6"`
+	PasswordConfirm string `json:"password_confirm" validate:"required,eqfield=Password"`
+}

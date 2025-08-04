@@ -183,3 +183,23 @@ func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, res)
 }
+
+func (ctrl *authController) ResetPassword(ctx *gin.Context) {
+	var request dto.ResetPasswordRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		errorhandler.ErrorHandler(ctx, &errorhandler.BadRequestError{Message: err.Error()})
+		return
+	}
+
+	if err := ctrl.services.ResetPassword(&request); err != nil {
+		errorhandler.ErrorHandler(ctx, err)
+		return
+	}
+
+	res := helpers.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "password reset successfully",
+	})
+
+	ctx.JSON(http.StatusOK, res)
+}

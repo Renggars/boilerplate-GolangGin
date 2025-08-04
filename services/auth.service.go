@@ -17,6 +17,7 @@ type AuthService interface {
 	RefreshToken(refreshToken string) (string, error)
 	ForgotPassword(req *dto.ForgotPasswordRequest) error
 	VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPResponse, error)
+	ResetPassword(req *dto.ResetPasswordRequest) error
 }
 
 type authService struct {
@@ -179,4 +180,42 @@ func (s *authService) VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPRespon
 	return &dto.VerifyOTPResponse{
 		ResetToken: rawResetToken,
 	}, nil
+}
+
+func (s *authService) ResetPassword(req *dto.ResetPasswordRequest) error {
+	user, err := s.authRepository.GetUserByEmail(req.Email)
+	if err != nil || user == nil {
+		return &errorhandler.NotFoundError{Message: "user not found"}
+	}
+
+	if user.ResetToken == nil || user.ResetTokenExp == nil {
+		return &errorhandler.BadRequestError{Message: "no reset token found"}
+	}
+
+	if time.Now().After(*user.ResetTokenExp) {
+		return &errorhandler.BadRequestError{Message: "reset token expired"}
+	}
+
+	if err := utils.CompareBcrypt(*user.ResetToken, req.ResetToken); err != nil {
+		return &errorhandler.BadRequestError{Message: "invalid reset token"}
+	}
+
+	if req.Password != req.PasswordConfirm {
+		return &errorhandler.BadRequestError{Message: "password not match"}
+	}
+
+	passwordHash, err := utils.HashBcrypt(req.Password)
+	if err != nil {
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	user.Password = passwordHash
+	user.ResetToken = nil
+	user.ResetTokenExp = nil
+
+	if err := s.userRepository.UpdateUser(user); err != nil {
+		return &errorhandler.InternalServerError{Message: err.Error()}
+	}
+
+	return nil
 }
