@@ -55,6 +55,7 @@ func main() {
 	})
 
 	routes.AuthRouter(api)
+	routes.UserRouter(api)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 

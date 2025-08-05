@@ -29,10 +29,10 @@ func NewAuthController(authService services.AuthService) *authController {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body object true "Register Request"
-// @Success 201 {object} object
-// @Failure 400 {object} object
-// @Failure 500 {object} object
+// @Param request body dto.RegisterRequest true "Register Request"
+// @Success 201 {object} utils.ResponseWithoutData "Created"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /register [post]
 func (ctrl *authController) Register(ctx *gin.Context) {
 	var register dto.RegisterRequest
@@ -65,11 +65,11 @@ func (ctrl *authController) Register(ctx *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body object true "Login Request"
-// @Success 200 {object} object
-// @Failure 400 {object} object
-// @Failure 401 {object} object
-// @Failure 500 {object} object
+// @Param request body dto.LoginRequest true "Login Request"
+// @Success 200 {object} utils.ResponseWithData{data=dto.LoginResponse} "OK"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /login [post]
 func (ctrl *authController) Login(ctx *gin.Context) {
 	var login dto.LoginRequest
@@ -124,7 +124,7 @@ func (ctrl *authController) Login(ctx *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} object
+// @Success 200 {object} utils.ResponseWithoutData "OK"
 // @Router /logout [post]
 func (ctrl *authController) Logout(ctx *gin.Context) {
 	ctx.SetCookie(
@@ -161,9 +161,9 @@ func (ctrl *authController) Logout(ctx *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Failure 500 {object} object
+// @Success 200 {object} utils.ResponseWithoutData "OK"
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /refresh-token [post]
 func (ctrl *authController) RefreshToken(ctx *gin.Context) {
 	refreshToken, err := ctx.Cookie("refreshToken")
@@ -202,11 +202,11 @@ func (ctrl *authController) RefreshToken(ctx *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body object true "Forgot Password Request"
-// @Success 200 {object} object
-// @Failure 400 {object} object
-// @Failure 404 {object} object
-// @Failure 500 {object} object
+// @Param request body dto.ForgotPasswordRequest true "Forgot Password Request"
+// @Success 200 {object} utils.ResponseWithoutData "OK"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /forgot-password [post]
 func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 	var forgotPassword dto.ForgotPasswordRequest
@@ -241,9 +241,9 @@ func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 // @Produce json
 // @Param request body dto.VerifyOTPRequest true "Verify OTP Request"
 // @Success 200 {object} utils.ResponseWithData{data=dto.VerifyOTPResponse}
-// @Failure 400 {object} errorhandler.ErrorResponse
-// @Failure 401 {object} errorhandler.ErrorResponse
-// @Failure 500 {object} errorhandler.ErrorResponse
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /verify-otp [post]
 func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 	var verifyOTP dto.VerifyOTPRequest
@@ -280,9 +280,9 @@ func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 // @Produce json
 // @Param request body dto.ResetPasswordRequest true "Reset Password Request"
 // @Success 200 {object} utils.ResponseWithoutData
-// @Failure 400 {object} errorhandler.ErrorResponse
-// @Failure 401 {object} errorhandler.ErrorResponse
-// @Failure 500 {object} errorhandler.ErrorResponse
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 500 {object} errorhandler.InternalServerError
 // @Router /reset-password [post]
 func (ctrl *authController) ResetPassword(ctx *gin.Context) {
 	var resetPassword dto.ResetPasswordRequest

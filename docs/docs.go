@@ -49,19 +49,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.BadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.NotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -113,19 +113,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.BadRequestError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.UnauthorizedError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -177,13 +177,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.UnauthorizedError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -217,19 +217,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/utils.ResponseWithData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.BadRequestError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -269,19 +269,47 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.BadRequestError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.UnauthorizedError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -333,19 +361,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.BadRequestError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.UnauthorizedError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errorhandler.ErrorResponse"
+                            "$ref": "#/definitions/errorhandler.InternalServerError"
                         }
                     }
                 }
@@ -503,20 +531,61 @@ const docTemplate = `{
                 }
             }
         },
-        "errorhandler.ErrorResponse": {
+        "errorhandler.BadRequestError": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
                 "message": {
-                    "type": "string",
-                    "example": "Bad request"
+                    "type": "string"
+                }
+            }
+        },
+        "errorhandler.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "errorhandler.NotFoundError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "errorhandler.UnauthorizedError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
                 },
-                "status": {
-                    "type": "string",
-                    "example": "error"
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
