@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	UpdateUser(user *models.User) error
 	GetAllUsers() ([]models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 }
 
 type userRepository struct {
@@ -30,4 +31,16 @@ func (r *userRepository) GetAllUsers() ([]models.User, error) {
 	err := r.db.Find(&users).Error
 
 	return users, err
+}
+
+func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+            return nil, nil
+        }
+		return nil, err
+	}
+	return &user, nil
 }

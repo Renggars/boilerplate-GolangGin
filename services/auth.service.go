@@ -63,7 +63,7 @@ func (s *authService) Register(req *dto.RegisterRequest) error {
 func (s *authService) Login(req *dto.LoginRequest) (*dto.LoginResponse, string, string, error) {
 	var data dto.LoginResponse
 
-	user, err := s.authRepository.GetUserByEmail(req.Email)
+	user, err := s.userRepository.GetUserByEmail(req.Email)
 	if err != nil {
 		return nil, "", "", &errorhandler.NotFoundError{Message: "invalid email or password"}
 	}
@@ -112,7 +112,7 @@ func (s *authService) RefreshToken(refreshToken string) (string, error) {
 }
 
 func (s *authService) ForgotPassword(req *dto.ForgotPasswordRequest) error {
-	user, err := s.authRepository.GetUserByEmail(req.Email)
+	user, err := s.userRepository.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
 		return &errorhandler.NotFoundError{Message: "user not found"}
 	}
@@ -141,7 +141,7 @@ func (s *authService) ForgotPassword(req *dto.ForgotPasswordRequest) error {
 }
 
 func (s *authService) VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPResponse, error) {
-	user, err := s.authRepository.GetUserByEmail(req.Email)
+	user, err := s.userRepository.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
 		return nil, &errorhandler.NotFoundError{Message: "user not found"}
 	}
@@ -183,7 +183,7 @@ func (s *authService) VerifyOTP(req *dto.VerifyOTPRequest) (*dto.VerifyOTPRespon
 }
 
 func (s *authService) ResetPassword(req *dto.ResetPasswordRequest) error {
-	user, err := s.authRepository.GetUserByEmail(req.Email)
+	user, err := s.userRepository.GetUserByEmail(req.Email)
 	if err != nil || user == nil {
 		return &errorhandler.NotFoundError{Message: "user not found"}
 	}

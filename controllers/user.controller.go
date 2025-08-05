@@ -30,3 +30,27 @@ func (ctrl *UserController) GetAllUsers(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, users)
 }
+
+// GetUserByEmail godoc
+// @Summary Get user by email
+// @Tags users
+// @Produce json
+// @Param email query string true "User Email"
+// @Success 200 {object} models.User
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user/searchByEmail [get]
+func (ctrl *UserController) GetUserByEmail(ctx *gin.Context) {
+	email := ctx.Query("email")
+	user, err := ctrl.service.GetUserByEmail(email)
+	if err != nil {
+		if err.Error() == "record not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user"})
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
