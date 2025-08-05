@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"restApi-GoGin/dto"
 	"restApi-GoGin/errorhandler"
-	"restApi-GoGin/helpers"
 	"restApi-GoGin/services"
+	"restApi-GoGin/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -51,7 +51,7 @@ func (ctrl *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	response := helpers.Response(dto.ResponseParams{
+	response := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusCreated,
 		Message:    "success register user",
 	})
@@ -109,7 +109,7 @@ func (ctrl *authController) Login(ctx *gin.Context) {
 		true,
 	)
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "success login user",
 		Data:       responseData,
@@ -147,7 +147,7 @@ func (ctrl *authController) Logout(ctx *gin.Context) {
 		true,
 	)
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "success logout user",
 	})
@@ -188,7 +188,7 @@ func (ctrl *authController) RefreshToken(ctx *gin.Context) {
 		true,
 	)
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "success refresh token",
 	})
@@ -225,7 +225,7 @@ func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 		return
 	}
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "OTP has been sent to your email",
 	})
@@ -240,7 +240,7 @@ func (ctrl *authController) ForgotPassword(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body dto.VerifyOTPRequest true "Verify OTP Request"
-// @Success 200 {object} helpers.ResponseWithData{data=dto.VerifyOTPResponse}
+// @Success 200 {object} utils.ResponseWithData{data=dto.VerifyOTPResponse}
 // @Failure 400 {object} errorhandler.ErrorResponse
 // @Failure 401 {object} errorhandler.ErrorResponse
 // @Failure 500 {object} errorhandler.ErrorResponse
@@ -263,7 +263,7 @@ func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 		return
 	}
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "OTP verified successfully",
 		Data:       resetToken,
@@ -279,7 +279,7 @@ func (ctrl *authController) VerifyOTP(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body dto.ResetPasswordRequest true "Reset Password Request"
-// @Success 200 {object} helpers.ResponseWithoutData
+// @Success 200 {object} utils.ResponseWithoutData
 // @Failure 400 {object} errorhandler.ErrorResponse
 // @Failure 401 {object} errorhandler.ErrorResponse
 // @Failure 500 {object} errorhandler.ErrorResponse
@@ -301,7 +301,7 @@ func (ctrl *authController) ResetPassword(ctx *gin.Context) {
 		return
 	}
 
-	res := helpers.Response(dto.ResponseParams{
+	res := utils.Response(dto.ResponseParams{
 		StatusCode: http.StatusOK,
 		Message:    "password reset successfully",
 	})

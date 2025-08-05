@@ -2,7 +2,7 @@ package errorhandler
 
 import (
 	"restApi-GoGin/dto"
-	"restApi-GoGin/helpers"
+	"restApi-GoGin/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ func ErrorHandler(c *gin.Context, err error) {
 		statusCode = 500
 	}
 
-	response := helpers.Response(dto.ResponseParams{
+	response := utils.Response(dto.ResponseParams{
 		StatusCode: statusCode,
 		Message:    err.Error(),
 	})

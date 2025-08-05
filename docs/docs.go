@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "400": {
@@ -97,7 +97,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/helpers.ResponseWithData"
+                                    "$ref": "#/definitions/utils.ResponseWithData"
                                 },
                                 {
                                     "type": "object",
@@ -148,7 +148,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     }
                 }
@@ -171,7 +171,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "401": {
@@ -217,7 +217,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithData"
+                            "$ref": "#/definitions/utils.ResponseWithData"
                         }
                     },
                     "400": {
@@ -263,7 +263,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "400": {
@@ -317,7 +317,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/helpers.ResponseWithData"
+                                    "$ref": "#/definitions/utils.ResponseWithData"
                                 },
                                 {
                                     "type": "object",
@@ -520,7 +520,7 @@ const docTemplate = `{
                 }
             }
         },
-        "helpers.ResponseWithData": {
+        "utils.ResponseWithData": {
             "type": "object",
             "properties": {
                 "code": {
@@ -541,7 +541,7 @@ const docTemplate = `{
                 }
             }
         },
-        "helpers.ResponseWithoutData": {
+        "utils.ResponseWithoutData": {
             "type": "object",
             "properties": {
                 "code": {

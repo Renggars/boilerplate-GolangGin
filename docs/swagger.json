@@ -37,7 +37,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "400": {
@@ -91,7 +91,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/helpers.ResponseWithData"
+                                    "$ref": "#/definitions/utils.ResponseWithData"
                                 },
                                 {
                                     "type": "object",
@@ -142,7 +142,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     }
                 }
@@ -165,7 +165,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "401": {
@@ -211,7 +211,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithData"
+                            "$ref": "#/definitions/utils.ResponseWithData"
                         }
                     },
                     "400": {
@@ -257,7 +257,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helpers.ResponseWithoutData"
+                            "$ref": "#/definitions/utils.ResponseWithoutData"
                         }
                     },
                     "400": {
@@ -311,7 +311,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/helpers.ResponseWithData"
+                                    "$ref": "#/definitions/utils.ResponseWithData"
                                 },
                                 {
                                     "type": "object",
@@ -514,7 +514,7 @@
                 }
             }
         },
-        "helpers.ResponseWithData": {
+        "utils.ResponseWithData": {
             "type": "object",
             "properties": {
                 "code": {
@@ -535,7 +535,7 @@
                 }
             }
         },
-        "helpers.ResponseWithoutData": {
+        "utils.ResponseWithoutData": {
             "type": "object",
             "properties": {
                 "code": {

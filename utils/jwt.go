@@ -67,3 +67,19 @@ func VerifyRefreshToken(tokenStr string) (*JWTRefreshClaims, error) {
 	return claims, nil
 
 }
+
+func VerifyAccessToken(tokenStr string) (*JWTAccessClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &JWTAccessClaims{}, func(t *jwt.Token) (interface{}, error) { return accessSecret, nil })
+
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*JWTAccessClaims)
+
+	if !ok {
+		return nil, err
+	}
+
+	return claims, nil
+}
