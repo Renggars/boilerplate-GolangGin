@@ -354,6 +354,34 @@ paths:
       summary: Reset password
       tags:
       - auth
+  /user/{id}:
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorhandler.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.InternalServerError'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - users
   /user/searchByEmail:
     get:
       parameters:

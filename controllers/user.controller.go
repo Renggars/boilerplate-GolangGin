@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"restApi-GoGin/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,6 +51,35 @@ func (ctrl *UserController) GetUserByEmail(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user"})
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
+
+// GetUserByID godoc
+// @Summary Get user by ID
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} models.User
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user/{id} [get]
+func (ctrl *UserController) GetUserByID(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
+		return
+	}
+	user, err := ctrl.service.GetUserByID(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to get user"})
+		return
+	}
+	if user == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
