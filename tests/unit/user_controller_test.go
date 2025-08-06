@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"restApi-GoGin/controllers"
 	"restApi-GoGin/models"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ type MockUserService struct {
 	getAllUsersFunc    func() ([]models.User, error)
 	getUserByEmailFunc func(email string) (*models.User, error)
 	getUserByIDFunc    func(id int) (*models.User, error)
+	createUserFunc     func(name, email, password, role string) error
 }
 
 func (m *MockUserService) GetAllUsers() ([]models.User, error) {
@@ -36,6 +38,13 @@ func (m *MockUserService) GetUserByID(id int) (*models.User, error) {
 		return m.getUserByIDFunc(id)
 	}
 	return nil, nil
+}
+
+func (m *MockUserService) CreateUser(name, email, password, role string) error {
+	if m.createUserFunc != nil {
+		return m.createUserFunc(name, email, password, role)
+	}
+	return nil
 }
 
 func TestGetAllUsers_Success(t *testing.T) {
@@ -190,6 +199,65 @@ func TestGetUserByID_Error(t *testing.T) {
 	c.Params = []gin.Param{{Key: "id", Value: "3"}}
 
 	controller.GetUserByID(c)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestCreateUser_Success(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		createUserFunc: func(name, email, password, role string) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("POST", "/user", strings.NewReader(`{"name":"User1","email":"user1@example.com","password":"password123","password_confirm":"password123"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.CreateUser(c)
+
+	if w.Code != http.StatusCreated {
+		t.Errorf("Expected status code %d, got %d", http.StatusCreated, w.Code)
+	}
+}
+
+func TestCreateUser_ValidationError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("POST", "/user", strings.NewReader(`{"name":"","email":"invalid","password":"123","password_confirm":"321"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.CreateUser(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestCreateUser_ServiceError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		createUserFunc: func(name, email, password, role string) error {
+			return errors.New("service error")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("POST", "/user", strings.NewReader(`{"name":"User1","email":"user1@example.com","password":"password123","password_confirm":"password123"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.CreateUser(c)
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)

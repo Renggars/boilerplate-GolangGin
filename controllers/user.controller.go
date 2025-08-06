@@ -5,8 +5,14 @@ import (
 	"restApi-GoGin/services"
 	"strconv"
 
+	"restApi-GoGin/dto"
+	"restApi-GoGin/utils"
+
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
+
+var validateUser = validator.New()
 
 type UserController struct {
 	service services.UserService
@@ -83,4 +89,48 @@ func (ctrl *UserController) GetUserByID(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
+}
+
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user (admin only)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body dto.RegisterRequest true "User Data"
+// @Success 201 {object} utils.ResponseWithoutData "Created"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 403 {object} errorhandler.ForbiddenError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user [post]
+func (ctrl *UserController) CreateUser(ctx *gin.Context) {
+	var req dto.RegisterRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if err := validateUser.Struct(req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	passwordHash, err := utils.HashBcrypt(req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to hash password"})
+		return
+	}
+	role := "user"
+	if ctx.PostForm("role") != "" {
+		role = ctx.PostForm("role")
+	}
+	if err := ctrl.service.CreateUser(req.Name, req.Email, passwordHash, role); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	response := utils.Response(dto.ResponseParams{
+		StatusCode: http.StatusCreated,
+		Message:    "success create user",
+	})
+	ctx.JSON(http.StatusCreated, response)
 }

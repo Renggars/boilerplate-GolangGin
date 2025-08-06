@@ -11,6 +11,7 @@ type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByID(id int) (*models.User, error)
+	CreateUser(user *models.User) error
 }
 
 type userRepository struct {
@@ -56,4 +57,8 @@ func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *userRepository) CreateUser(user *models.User) error {
+	return r.db.Create(user).Error
 }

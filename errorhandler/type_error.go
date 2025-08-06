@@ -27,6 +27,11 @@ type UnauthorizedError struct {
 	Message string
 }
 
+// ForbiddenError represents a 403 Forbidden error
+type ForbiddenError struct {
+	Message string
+}
+
 func (e *NotFoundError) Error() string {
 	return e.Message
 }
@@ -40,5 +45,9 @@ func (e *InternalServerError) Error() string {
 }
 
 func (e *UnauthorizedError) Error() string {
+	return e.Message
+}
+
+func (e *ForbiddenError) Error() string {
 	return e.Message
 }

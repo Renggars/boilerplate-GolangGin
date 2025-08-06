@@ -15,6 +15,8 @@ func ErrorHandler(c *gin.Context, err error) {
 		statusCode = 404
 	case *BadRequestError:
 		statusCode = 400
+	case *ForbiddenError:
+		statusCode = 403
 	case *UnauthorizedError:
 		statusCode = 401
 	case *InternalServerError:

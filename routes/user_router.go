@@ -16,6 +16,7 @@ func UserRouter(api *gin.RouterGroup) {
 	userService := services.NewUserService(userRepository)
 	userController := controllers.NewUserController(userService)
 
+	api.POST("/user", middlewares.Auth(authRepository), middlewares.AuthAccess(authRepository), userController.CreateUser)
 	api.GET("/users", middlewares.Auth(authRepository), middlewares.AuthAccess(authRepository), userController.GetAllUsers)
 	api.GET("/user/searchByEmail", middlewares.Auth(authRepository), middlewares.AuthAccess(authRepository), userController.GetUserByEmail)
 	api.GET("/user/:id", middlewares.Auth(authRepository), middlewares.AuthAccess(authRepository), userController.GetUserByID)

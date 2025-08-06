@@ -112,6 +112,11 @@ definitions:
       message:
         type: string
     type: object
+  errorhandler.ForbiddenError:
+    properties:
+      message:
+        type: string
+    type: object
   errorhandler.InternalServerError:
     properties:
       message:
@@ -354,6 +359,46 @@ paths:
       summary: Reset password
       tags:
       - auth
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user (admin only)
+      parameters:
+      - description: User Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.ResponseWithoutData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.BadRequestError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.UnauthorizedError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errorhandler.ForbiddenError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.InternalServerError'
+      security:
+      - BearerAuth: []
+      summary: Create a new user
+      tags:
+      - users
   /user/{id}:
     get:
       parameters:
