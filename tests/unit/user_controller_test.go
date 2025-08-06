@@ -355,3 +355,83 @@ func TestUpdateUser_ServiceError(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
 	}
 }
+
+func TestUpdateProfile_Success(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		updateUserFunc: func(id int, name, email, password, role *string) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Request = httptest.NewRequest("PUT", "/user/profile", strings.NewReader(`{"name":"User Updated","email":"updated@example.com"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateProfile(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+}
+
+func TestUpdateProfile_ValidationError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Request = httptest.NewRequest("PUT", "/user/profile", strings.NewReader(`{"email":"invalid"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateProfile(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestUpdateProfile_ServiceError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		updateUserFunc: func(id int, name, email, password, role *string) error {
+			return errors.New("service error")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Request = httptest.NewRequest("PUT", "/user/profile", strings.NewReader(`{"name":"User Updated"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateProfile(c)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestUpdateProfile_InvalidUserContext(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	// Tidak set user context
+	c.Request = httptest.NewRequest("PUT", "/user/profile", strings.NewReader(`{"name":"User Updated"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateProfile(c)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Expected status code %d, got %d", http.StatusUnauthorized, w.Code)
+	}
+}

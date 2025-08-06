@@ -45,4 +45,9 @@ func UserRouter(api *gin.RouterGroup) {
 		middlewares.AuthAccess(authRepository),
 		userController.UpdateUser,
 	)
+	api.PUT(
+		"/user/profile",
+		middlewares.Auth(authRepository),
+		userController.UpdateProfile,
+	)
 }

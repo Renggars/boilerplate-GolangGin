@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"restApi-GoGin/dto"
+	"restApi-GoGin/models"
 	"restApi-GoGin/utils"
 
 	"github.com/gin-gonic/gin"
@@ -198,6 +199,74 @@ func (ctrl *UserController) UpdateUser(ctx *gin.Context) {
 	response := utils.Response(dto.ResponseParams{
 		StatusCode: 200,
 		Message:    "success update user",
+	})
+	ctx.JSON(http.StatusOK, response)
+}
+
+// UpdateProfile godoc
+// @Summary Update user profile (name and email only)
+// @Description Update name and email for the authenticated user. Admin can update any user by id.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body dto.UpdateProfileRequest true "Profile Data"
+// @Success 200 {object} utils.ResponseWithoutData "OK"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 403 {object} errorhandler.ForbiddenError
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user/profile [put]
+func (ctrl *UserController) UpdateProfile(ctx *gin.Context) {
+	userObj, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
+	user, ok := userObj.(*models.User)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user context"})
+		return
+	}
+
+	var req dto.UpdateProfileRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if err := validateUser.Struct(req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	var namePtr, emailPtr *string
+	if req.Name != "" {
+		namePtr = &req.Name
+	}
+	if req.Email != "" {
+		emailPtr = &req.Email
+	}
+
+	id := user.Id
+	if user.Role == "admin" && ctx.Query("id") != "" {
+		if idParam, err := strconv.Atoi(ctx.Query("id")); err == nil {
+			id = idParam
+		}
+	}
+	if err := ctrl.service.UpdateUser(id, namePtr, emailPtr, nil, nil); err != nil {
+		if err.Error() == "record not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	response := utils.Response(dto.ResponseParams{
+		StatusCode: 200,
+		Message:    "success update profile",
 	})
 	ctx.JSON(http.StatusOK, response)
 }

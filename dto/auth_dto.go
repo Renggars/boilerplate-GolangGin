@@ -55,3 +55,11 @@ type UpdateUserRequest struct {
 	Password string `json:"password" validate:"omitempty,min=6" example:"newpassword123"`
 	Role     string `json:"role" validate:"omitempty" example:"user"`
 }
+
+// UpdateProfileRequest represents the request body for updating user profile (name and email only)
+// swagger:model
+// @Description Update user profile fields (name and email only)
+type UpdateProfileRequest struct {
+	Name  string `json:"name" validate:"omitempty" example:"John Doe"`
+	Email string `json:"email" validate:"omitempty,email" example:"john@example.com"`
+}
