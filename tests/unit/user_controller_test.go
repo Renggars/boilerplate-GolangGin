@@ -18,6 +18,7 @@ type MockUserService struct {
 	getUserByIDFunc    func(id int) (*models.User, error)
 	createUserFunc     func(name, email, password, role string) error
 	updateUserFunc     func(id int, name, email, password, role *string) error // Tambahkan ini
+	deleteUserFunc     func(id int) error
 }
 
 func (m *MockUserService) GetAllUsers() ([]models.User, error) {
@@ -51,6 +52,13 @@ func (m *MockUserService) CreateUser(name, email, password, role string) error {
 func (m *MockUserService) UpdateUser(id int, name, email, password, role *string) error {
 	if m.updateUserFunc != nil {
 		return m.updateUserFunc(id, name, email, password, role)
+	}
+	return nil
+}
+
+func (m *MockUserService) DeleteUser(id int) error {
+	if m.deleteUserFunc != nil {
+		return m.deleteUserFunc(id)
 	}
 	return nil
 }
@@ -430,6 +438,206 @@ func TestUpdateProfile_InvalidUserContext(t *testing.T) {
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	controller.UpdateProfile(c)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Expected status code %d, got %d", http.StatusUnauthorized, w.Code)
+	}
+}
+
+func TestDeleteUser_Success_UserDeletingSelf(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		deleteUserFunc: func(id int) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// Check if cookies are cleared when user deletes their own account
+	cookies := w.Result().Cookies()
+	accessTokenCleared := false
+	refreshTokenCleared := false
+
+	for _, cookie := range cookies {
+		if cookie.Name == "accessToken" && cookie.Value == "" && cookie.MaxAge == -1 {
+			accessTokenCleared = true
+		}
+		if cookie.Name == "refreshToken" && cookie.Value == "" && cookie.MaxAge == -1 {
+			refreshTokenCleared = true
+		}
+	}
+
+	if !accessTokenCleared || !refreshTokenCleared {
+		t.Error("Expected cookies to be cleared when user deletes their own account")
+	}
+}
+
+func TestDeleteUser_Success_AdminDeletingOtherUser(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		deleteUserFunc: func(id int) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "Admin", Email: "admin@example.com", Role: "admin"})
+	c.Params = []gin.Param{{Key: "id", Value: "2"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// Check that cookies are NOT cleared when admin deletes other user
+	cookies := w.Result().Cookies()
+	for _, cookie := range cookies {
+		if (cookie.Name == "accessToken" || cookie.Name == "refreshToken") && cookie.Value == "" && cookie.MaxAge == -1 {
+			t.Errorf("Expected cookies NOT to be cleared when admin deletes other user, but %s was cleared", cookie.Name)
+		}
+	}
+}
+
+func TestDeleteUser_Success_AdminDeletingSelf(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		deleteUserFunc: func(id int) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "Admin", Email: "admin@example.com", Role: "admin"})
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// Check if cookies are cleared when admin deletes their own account
+	cookies := w.Result().Cookies()
+	accessTokenCleared := false
+	refreshTokenCleared := false
+
+	for _, cookie := range cookies {
+		if cookie.Name == "accessToken" && cookie.Value == "" && cookie.MaxAge == -1 {
+			accessTokenCleared = true
+		}
+		if cookie.Name == "refreshToken" && cookie.Value == "" && cookie.MaxAge == -1 {
+			refreshTokenCleared = true
+		}
+	}
+
+	if !accessTokenCleared || !refreshTokenCleared {
+		t.Error("Expected cookies to be cleared when admin deletes their own account")
+	}
+}
+
+func TestDeleteUser_Forbidden_UserDeletingOtherUser(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Params = []gin.Param{{Key: "id", Value: "2"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
+	}
+}
+
+func TestDeleteUser_InvalidUserID(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Params = []gin.Param{{Key: "id", Value: "invalid"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestDeleteUser_UserNotFound(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		deleteUserFunc: func(id int) error {
+			return errors.New("record not found")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 999, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Params = []gin.Param{{Key: "id", Value: "999"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, w.Code)
+	}
+}
+
+func TestDeleteUser_ServiceError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		deleteUserFunc: func(id int) error {
+			return errors.New("service error")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &models.User{Id: 1, Name: "User1", Email: "user1@example.com", Role: "user"})
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+
+	controller.DeleteUser(c)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestDeleteUser_InvalidUserContext(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	// Tidak set user context
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+
+	controller.DeleteUser(c)
 
 	if w.Code != http.StatusUnauthorized {
 		t.Errorf("Expected status code %d, got %d", http.StatusUnauthorized, w.Code)

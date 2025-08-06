@@ -270,3 +270,67 @@ func (ctrl *UserController) UpdateProfile(ctx *gin.Context) {
 	})
 	ctx.JSON(http.StatusOK, response)
 }
+
+// DeleteUser godoc
+// @Summary Delete user
+// @Description Delete user. User can only delete themselves, admin can delete any user by ID.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} utils.ResponseWithoutData "OK"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 403 {object} errorhandler.ForbiddenError
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user/{id} [delete]
+func (ctrl *UserController) DeleteUser(ctx *gin.Context) {
+	// Get authenticated user from context
+	userObj, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+		return
+	}
+
+	user, ok := userObj.(*models.User)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Invalid user context"})
+		return
+	}
+
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
+		return
+	}
+
+	if user.Role != "admin" && user.Id != id {
+		ctx.JSON(http.StatusForbidden, gin.H{"message": "Access denied: you can only delete your own account"})
+		return
+	}
+
+	if err := ctrl.service.DeleteUser(id); err != nil {
+		if err.Error() == "record not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to delete user"})
+		return
+	}
+
+	// If user is deleting their own account (including admin), clear cookies to logout
+	// If admin is deleting other user, the deleted user will be automatically logged out
+	// when they try to access any protected endpoint due to DeletedAt check in middleware
+	if user.Id == id {
+		ctx.SetCookie("accessToken", "", -1, "/", "", false, true)
+		ctx.SetCookie("refreshToken", "", -1, "/", "", false, true)
+	}
+
+	response := utils.Response(dto.ResponseParams{
+		StatusCode: 200,
+		Message:    "success delete user",
+	})
+	ctx.JSON(http.StatusOK, response)
+}

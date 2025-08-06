@@ -14,6 +14,7 @@ type UserService interface {
 	GetUserByID(id int) (*models.User, error)
 	CreateUser(name, email, password, role string) error
 	UpdateUser(id int, name, email, password, role *string) error
+	DeleteUser(id int) error
 }
 
 // userService struct
@@ -70,4 +71,22 @@ func (s *userService) UpdateUser(id int, name, email, password, role *string) er
 		user.Role = *role
 	}
 	return s.repo.UpdateUser(user)
+}
+
+func (s *userService) DeleteUser(id int) error {
+	// Check if user exists before soft delete
+	user, err := s.repo.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	// Check if user is already deleted
+	if user.DeletedAt != nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	return s.repo.DeleteUser(id)
 }

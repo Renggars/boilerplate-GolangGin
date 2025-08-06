@@ -12,6 +12,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByID(id int) (*models.User, error)
 	CreateUser(user *models.User) error
+	DeleteUser(id int) error
 }
 
 type userRepository struct {
@@ -61,4 +62,8 @@ func (r *userRepository) GetUserByID(id int) (*models.User, error) {
 
 func (r *userRepository) CreateUser(user *models.User) error {
 	return r.db.Create(user).Error
+}
+
+func (r *userRepository) DeleteUser(id int) error {
+	return r.db.Delete(&models.User{}, id).Error
 }

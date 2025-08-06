@@ -427,6 +427,47 @@ paths:
       tags:
       - users
   /user/{id}:
+    delete:
+      description: Delete user. User can only delete themselves, admin can delete
+        any user by ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseWithoutData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.BadRequestError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.UnauthorizedError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errorhandler.ForbiddenError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorhandler.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.InternalServerError'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - users
     get:
       parameters:
       - description: User ID

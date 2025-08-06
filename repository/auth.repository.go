@@ -37,7 +37,7 @@ func (r *authRepository) Register(user *models.User) error {
 
 func (r *authRepository) GetUserById(id int) (*models.User, error) {
 	var user models.User
-	err := r.db.First(&user, "id = ?", id).Error
+	err := r.db.Where("id = ? AND deleted_at IS NULL", id).First(&user).Error
 
 	return &user, err
 }

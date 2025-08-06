@@ -50,4 +50,9 @@ func UserRouter(api *gin.RouterGroup) {
 		middlewares.Auth(authRepository),
 		userController.UpdateProfile,
 	)
+	api.DELETE(
+		"/user/:id",
+		middlewares.Auth(authRepository),
+		userController.DeleteUser,
+	)
 }

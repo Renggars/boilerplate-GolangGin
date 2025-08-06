@@ -32,6 +32,13 @@ func Auth(authRepo repository.AuthRepository) gin.HandlerFunc {
 			return
 		}
 
+		// Check if user is deleted
+		if user.DeletedAt != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "User account has been deleted"})
+			c.Abort()
+			return
+		}
+
 		c.Set("user", user)
 		c.Next()
 	}
@@ -56,6 +63,13 @@ func AuthAccess(authRepo repository.AuthRepository) gin.HandlerFunc {
 		user, err := authRepo.GetUserById(claims.UserId)
 		if err != nil || user == nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User not found"})
+			c.Abort()
+			return
+		}
+
+		// Check if user is deleted
+		if user.DeletedAt != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "User account has been deleted"})
 			c.Abort()
 			return
 		}
