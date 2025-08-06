@@ -17,6 +17,7 @@ type MockUserService struct {
 	getUserByEmailFunc func(email string) (*models.User, error)
 	getUserByIDFunc    func(id int) (*models.User, error)
 	createUserFunc     func(name, email, password, role string) error
+	updateUserFunc     func(id int, name, email, password, role *string) error // Tambahkan ini
 }
 
 func (m *MockUserService) GetAllUsers() ([]models.User, error) {
@@ -43,6 +44,13 @@ func (m *MockUserService) GetUserByID(id int) (*models.User, error) {
 func (m *MockUserService) CreateUser(name, email, password, role string) error {
 	if m.createUserFunc != nil {
 		return m.createUserFunc(name, email, password, role)
+	}
+	return nil
+}
+
+func (m *MockUserService) UpdateUser(id int, name, email, password, role *string) error {
+	if m.updateUserFunc != nil {
+		return m.updateUserFunc(id, name, email, password, role)
 	}
 	return nil
 }
@@ -258,6 +266,90 @@ func TestCreateUser_ServiceError(t *testing.T) {
 	c.Request.Header.Set("Content-Type", "application/json")
 
 	controller.CreateUser(c)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestUpdateUser_Success(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		updateUserFunc: func(id int, name, email, password, role *string) error {
+			return nil
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+	c.Request = httptest.NewRequest("PUT", "/user/1", strings.NewReader(`{"name":"User Updated"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateUser(c)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+}
+
+func TestUpdateUser_ValidationError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = []gin.Param{{Key: "id", Value: "1"}}
+	c.Request = httptest.NewRequest("PUT", "/user/1", strings.NewReader(`{"email":"invalid"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateUser(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestUpdateUser_NotFound(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		updateUserFunc: func(id int, name, email, password, role *string) error {
+			return errors.New("record not found")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = []gin.Param{{Key: "id", Value: "2"}}
+	c.Request = httptest.NewRequest("PUT", "/user/2", strings.NewReader(`{"name":"User Updated"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateUser(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, w.Code)
+	}
+}
+
+func TestUpdateUser_ServiceError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mockService := &MockUserService{
+		updateUserFunc: func(id int, name, email, password, role *string) error {
+			return errors.New("service error")
+		},
+	}
+	controller := controllers.NewUserController(mockService)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = []gin.Param{{Key: "id", Value: "3"}}
+	c.Request = httptest.NewRequest("PUT", "/user/3", strings.NewReader(`{"name":"User Updated"}`))
+	c.Request.Header.Set("Content-Type", "application/json")
+
+	controller.UpdateUser(c)
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)

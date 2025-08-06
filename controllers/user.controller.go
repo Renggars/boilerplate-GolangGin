@@ -134,3 +134,70 @@ func (ctrl *UserController) CreateUser(ctx *gin.Context) {
 	})
 	ctx.JSON(http.StatusCreated, response)
 }
+
+// UpdateUser godoc
+// @Summary Update user
+// @Description Update user data (name, email, password, role). Hanya field yang diisi yang akan diupdate.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param request body dto.UpdateUserRequest true "User Data"
+// @Success 200 {object} utils.ResponseWithoutData "OK"
+// @Failure 400 {object} errorhandler.BadRequestError
+// @Failure 401 {object} errorhandler.UnauthorizedError
+// @Failure 404 {object} errorhandler.NotFoundError
+// @Failure 500 {object} errorhandler.InternalServerError
+// @Security BearerAuth
+// @Router /user/{id} [put]
+func (ctrl *UserController) UpdateUser(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
+		return
+	}
+
+	var req dto.UpdateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if err := validateUser.Struct(req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	var namePtr, emailPtr, passwordPtr, rolePtr *string
+	if req.Name != "" {
+		namePtr = &req.Name
+	}
+	if req.Email != "" {
+		emailPtr = &req.Email
+	}
+	if req.Password != "" {
+		hash, err := utils.HashBcrypt(req.Password)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to hash password"})
+			return
+		}
+		passwordPtr = &hash
+	}
+	if req.Role != "" {
+		rolePtr = &req.Role
+	}
+	if err := ctrl.service.UpdateUser(id, namePtr, emailPtr, passwordPtr, rolePtr); err != nil {
+		if err.Error() == "record not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	response := utils.Response(dto.ResponseParams{
+		StatusCode: 200,
+		Message:    "success update user",
+	})
+	ctx.JSON(http.StatusOK, response)
+}

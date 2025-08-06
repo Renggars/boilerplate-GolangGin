@@ -3,6 +3,8 @@ package services
 import (
 	"restApi-GoGin/models"
 	"restApi-GoGin/repository"
+
+	"gorm.io/gorm"
 )
 
 // UserService interface
@@ -11,6 +13,7 @@ type UserService interface {
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByID(id int) (*models.User, error)
 	CreateUser(name, email, password, role string) error
+	UpdateUser(id int, name, email, password, role *string) error
 }
 
 // userService struct
@@ -44,4 +47,27 @@ func (s *userService) CreateUser(name, email, password, role string) error {
 		Role:     role,
 	}
 	return s.repo.CreateUser(user)
+}
+
+func (s *userService) UpdateUser(id int, name, email, password, role *string) error {
+	user, err := s.repo.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return gorm.ErrRecordNotFound
+	}
+	if name != nil {
+		user.Name = *name
+	}
+	if email != nil {
+		user.Email = *email
+	}
+	if password != nil {
+		user.Password = *password
+	}
+	if role != nil {
+		user.Role = *role
+	}
+	return s.repo.UpdateUser(user)
 }

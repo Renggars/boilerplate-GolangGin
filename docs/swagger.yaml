@@ -89,6 +89,23 @@ definitions:
     - password_confirm
     - reset_token
     type: object
+  dto.UpdateUserRequest:
+    description: Update user fields. Password and role are optional.
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: newpassword123
+        minLength: 6
+        type: string
+      role:
+        example: user
+        type: string
+    type: object
   dto.VerifyOTPRequest:
     properties:
       email:
@@ -425,6 +442,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user data (name, email, password, role). Hanya field yang
+        diisi yang akan diupdate.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ResponseWithoutData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorhandler.BadRequestError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorhandler.UnauthorizedError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorhandler.NotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorhandler.InternalServerError'
+      security:
+      - BearerAuth: []
+      summary: Update user
       tags:
       - users
   /user/searchByEmail:
