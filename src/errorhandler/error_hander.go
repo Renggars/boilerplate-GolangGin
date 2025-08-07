@@ -1,8 +1,8 @@
 package errorhandler
 
 import (
-	"restApi-GoGin/dto"
-	"restApi-GoGin/utils"
+	"restApi-GoGin/src/dto"
+	"restApi-GoGin/src/utils"
 
 	"github.com/gin-gonic/gin"
 )

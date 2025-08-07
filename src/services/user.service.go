@@ -1,8 +1,8 @@
 package services
 
 import (
-	"restApi-GoGin/models"
-	"restApi-GoGin/repository"
+	"restApi-GoGin/src/models"
+	"restApi-GoGin/src/repository"
 
 	"gorm.io/gorm"
 )

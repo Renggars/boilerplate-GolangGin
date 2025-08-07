@@ -2,7 +2,7 @@ package utils
 
 import (
 	"os"
-	"restApi-GoGin/models"
+	"restApi-GoGin/src/models"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

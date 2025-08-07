@@ -1,11 +1,11 @@
 package services
 
 import (
-	"restApi-GoGin/dto"
-	"restApi-GoGin/errorhandler"
-	"restApi-GoGin/models"
-	"restApi-GoGin/repository"
-	"restApi-GoGin/utils"
+	"restApi-GoGin/src/dto"
+	"restApi-GoGin/src/errorhandler"
+	"restApi-GoGin/src/models"
+	"restApi-GoGin/src/repository"
+	"restApi-GoGin/src/utils"
 	"time"
 
 	"github.com/google/uuid"

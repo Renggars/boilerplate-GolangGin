@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
-	"restApi-GoGin/config"
-	"restApi-GoGin/routes"
 
 	_ "restApi-GoGin/docs"
+	"restApi-GoGin/src/config"
+	"restApi-GoGin/src/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

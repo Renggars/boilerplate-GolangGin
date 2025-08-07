@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"restApi-GoGin/config"
-	"restApi-GoGin/controllers"
-	"restApi-GoGin/middlewares"
-	"restApi-GoGin/repository"
-	"restApi-GoGin/services"
+	"restApi-GoGin/src/config"
+	"restApi-GoGin/src/controllers"
+	"restApi-GoGin/src/middleware"
+	"restApi-GoGin/src/repository"
+	"restApi-GoGin/src/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,41 +18,41 @@ func UserRouter(api *gin.RouterGroup) {
 
 	api.POST(
 		"/user",
-		middlewares.Auth(authRepository),
-		middlewares.AuthAccess(authRepository),
+		middleware.Auth(authRepository),
+		middleware.AuthAccess(authRepository),
 		userController.CreateUser,
 	)
 	api.GET(
 		"/users",
-		middlewares.Auth(authRepository),
-		middlewares.AuthAccess(authRepository),
+		middleware.Auth(authRepository),
+		middleware.AuthAccess(authRepository),
 		userController.GetAllUsers,
 	)
 	api.GET("/user/searchByEmail",
-		middlewares.Auth(authRepository),
-		middlewares.AuthAccess(authRepository),
+		middleware.Auth(authRepository),
+		middleware.AuthAccess(authRepository),
 		userController.GetUserByEmail,
 	)
 	api.GET(
 		"/user/:id",
-		middlewares.Auth(authRepository),
-		middlewares.AuthAccess(authRepository),
+		middleware.Auth(authRepository),
+		middleware.AuthAccess(authRepository),
 		userController.GetUserByID,
 	)
 	api.PUT(
 		"/user/:id",
-		middlewares.Auth(authRepository),
-		middlewares.AuthAccess(authRepository),
+		middleware.Auth(authRepository),
+		middleware.AuthAccess(authRepository),
 		userController.UpdateUser,
 	)
 	api.PUT(
 		"/user/profile",
-		middlewares.Auth(authRepository),
+		middleware.Auth(authRepository),
 		userController.UpdateProfile,
 	)
 	api.DELETE(
 		"/user/:id",
-		middlewares.Auth(authRepository),
+		middleware.Auth(authRepository),
 		userController.DeleteUser,
 	)
 }

@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"net/http"
-	"restApi-GoGin/services"
 	"strconv"
 
-	"restApi-GoGin/dto"
-	"restApi-GoGin/models"
-	"restApi-GoGin/utils"
+	"restApi-GoGin/src/dto"
+	"restApi-GoGin/src/models"
+	"restApi-GoGin/src/services"
+	"restApi-GoGin/src/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

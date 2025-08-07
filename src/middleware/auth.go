@@ -1,10 +1,10 @@
-package middlewares
+package middleware
 
 import (
 	"net/http"
 
-	"restApi-GoGin/repository"
-	"restApi-GoGin/utils"
+	"restApi-GoGin/src/repository"
+	"restApi-GoGin/src/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +32,6 @@ func Auth(authRepo repository.AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		// Check if user is deleted
 		if user.DeletedAt != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User account has been deleted"})
 			c.Abort()
@@ -67,7 +66,6 @@ func AuthAccess(authRepo repository.AuthRepository) gin.HandlerFunc {
 			return
 		}
 
-		// Check if user is deleted
 		if user.DeletedAt != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "User account has been deleted"})
 			c.Abort()

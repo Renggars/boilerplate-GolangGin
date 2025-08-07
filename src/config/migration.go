@@ -1,7 +1,7 @@
 package config
 
 import (
-	"restApi-GoGin/models"
+	"restApi-GoGin/src/models"
 
 	"gorm.io/gorm"
 )

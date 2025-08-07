@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"restApi-GoGin/controllers"
-	"restApi-GoGin/models"
+	"restApi-GoGin/src/controllers"
+	"restApi-GoGin/src/models"
 	"strings"
 	"testing"
 

@@ -1,62 +1,75 @@
 # Unit Testing Documentation
 
-Folder ini berisi unit testing untuk semua endpoint dalam Go Gin boilerplate API.
+This folder contains unit tests for all endpoints in the Go Gin boilerplate API.
 
-## Struktur Folder
+## Folder Structure
 
 ```
 tests/
-├── README.md                    # File ini
+├── README.md                    # This file
 └── unit/
-    └── auth_controller_test.go  # Unit tests untuk auth controller
+    ├── auth_controller_test.go  # Unit tests for auth controller
+    └── user_controller_test.go  # Unit tests for user controller
 ```
 
-## Menjalankan Tests
+## Running Tests
 
-### Jalankan semua unit tests
+To run all unit tests:
 ```bash
 go test ./tests/unit/... -v
 ```
 
-
-## Jenis Unit Tests
+## Types of Unit Tests
 
 ### Auth Controller Tests
-- `TestRegister_Success` - Menguji register berhasil
-- `TestRegister_InvalidRequest` - Menguji register dengan request tidak valid
-- `TestLogin_Success` - Menguji login berhasil
-- `TestLogout_Success` - Menguji logout berhasil
-- `TestRefreshToken_Success` - Menguji refresh token berhasil
-- `TestRefreshToken_NoToken` - Menguji refresh token tanpa token
-- `TestForgotPassword_Success` - Menguji forgot password berhasil
-- `TestVerifyOTP_Success` - Menguji verify OTP berhasil
-- `TestResetPassword_Success` - Menguji reset password berhasil
+- `TestRegister_Success` - Register success
+- `TestRegister_InvalidRequest` - Register with invalid request
+- `TestLogin_Success` - Login success
+- `TestLogout_Success` - Logout success
+- `TestRefreshToken_Success` - Refresh token success
+- `TestRefreshToken_NoToken` - Refresh token with no token
+- `TestForgotPassword_Success` - Forgot password success
+- `TestVerifyOTP_Success` - Verify OTP success
+- `TestResetPassword_Success` - Reset password success
 
-## Fitur Unit Testing
+### User Controller Tests
+- `TestGetAllUsers_Success` - Get all users success
+- `TestGetAllUsers_Error` - Get all users error
+- `TestGetUserByEmail_Success` - Get user by email success
+- `TestGetUserByEmail_NotFound` - Get user by email not found
+- `TestGetUserByEmail_Error` - Get user by email error
+- `TestGetUserByID_Success` - Get user by ID success
+- `TestGetUserByID_NotFound` - Get user by ID not found
+- `TestGetUserByID_Error` - Get user by ID error
+- `TestCreateUser_Success` - Create user success
+- `TestCreateUser_ValidationError` - Create user validation error
+- `TestCreateUser_ServiceError` - Create user service error
+- `TestUpdateUser_Success` - Update user success
+- `TestUpdateUser_ValidationError` - Update user validation error
+- `TestUpdateUser_NotFound` - Update user not found
+- `TestUpdateUser_ServiceError` - Update user service error
+- `TestUpdateProfile_Success` - Update profile success
+- `TestUpdateProfile_ValidationError` - Update profile validation error
+- `TestUpdateProfile_ServiceError` - Update profile service error
+- `TestUpdateProfile_InvalidUserContext` - Update profile invalid user context
+- `TestDeleteUser_Success_UserDeletingSelf` - User deletes self success
+- `TestDeleteUser_Success_AdminDeletingOtherUser` - Admin deletes other user success
+- `TestDeleteUser_Success_AdminDeletingSelf` - Admin deletes self success
+- `TestDeleteUser_Forbidden_UserDeletingOtherUser` - User forbidden to delete other user
+- `TestDeleteUser_InvalidUserID` - Delete user with invalid user ID
+- `TestDeleteUser_UserNotFound` - Delete user not found
+- `TestDeleteUser_ServiceError` - Delete user service error
+- `TestDeleteUser_InvalidUserContext` - Delete user invalid user context
 
-### Mock Service
-- Menggunakan mock sederhana untuk AuthService
-- Tidak memerlukan database atau dependencies eksternal
-- Testing cepat dan terisolasi
 
-### Test Cases
-- Success cases - menguji fungsi berjalan normal
-- Error cases - menguji handling error
-- Edge cases - menguji input tidak valid
+## How to Add a New Test
 
-### Assertions
-- Menggunakan testing standar Go
-- Tidak memerlukan library eksternal
-- Error messages dalam bahasa Indonesia
+1. Create a test function with the `Test` prefix
+2. Use mock services for dependencies
+3. Test both success and error scenarios
+4. Use descriptive names
 
-## Cara Menambah Test Baru
-
-1. Buat fungsi test dengan prefix `Test`
-2. Gunakan mock service untuk dependencies
-3. Test success dan error scenarios
-4. Berikan nama yang deskriptif
-
-Contoh:
+Example:
 ```go
 func TestNewFunction_Success(t *testing.T) {
     // Setup
@@ -66,16 +79,7 @@ func TestNewFunction_Success(t *testing.T) {
         },
     }
     controller := controllers.NewAuthController(mockService)
-    
     // Test logic here
     // Assertions here
 }
 ```
-
-## Best Practices
-
-1. Setiap test harus independen
-2. Gunakan nama test yang deskriptif
-3. Test success dan failure scenarios
-4. Mock semua dependencies eksternal
-5. Gunakan error messages yang jelas 

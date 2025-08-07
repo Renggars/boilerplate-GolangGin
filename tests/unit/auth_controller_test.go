@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"restApi-GoGin/controllers"
-	"restApi-GoGin/dto"
+	"restApi-GoGin/src/controllers"
+	"restApi-GoGin/src/dto"
 	"testing"
 
 	"github.com/gin-gonic/gin"

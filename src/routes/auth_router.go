@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"restApi-GoGin/config"
-	"restApi-GoGin/controllers"
-	"restApi-GoGin/repository"
-	"restApi-GoGin/services"
+	"restApi-GoGin/src/config"
+	"restApi-GoGin/src/controllers"
+	"restApi-GoGin/src/repository"
+	"restApi-GoGin/src/services"
 
 	"github.com/gin-gonic/gin"
 )

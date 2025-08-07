@@ -1,6 +1,6 @@
 package utils
 
-import "restApi-GoGin/dto"
+import "restApi-GoGin/src/dto"
 
 // ResponseWithData represents a successful API response with data
 type ResponseWithData struct {
