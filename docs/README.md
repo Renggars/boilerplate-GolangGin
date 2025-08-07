@@ -1,7 +1,5 @@
 # API Documentation
 
-This folder contains the Swagger/OpenAPI documentation for the Boilerplate Go Gin API.
-
 ## Overview
 
 The API documentation is generated using [swaggo/swag](https://github.com/swaggo/swag) and served using [gin-swagger](https://github.com/swaggo/gin-swagger).
